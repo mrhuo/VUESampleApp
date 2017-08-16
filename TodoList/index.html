@@ -1,113 +1,112 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<title>TodoList - VUESampleApp by mrhuo.com</title>
-		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-		<script src="https://unpkg.com/vue"></script>
-		<script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<style type="text/css">
-			body { padding-top: 30px; }
-			.row-margin-top { margin-top: 20px;}
-			.btn-done, .btn-remove{ padding-top: 2px; padding-bottom: 2px; }
-			.item-done { text-decoration: line-through; }
-		</style>
-	</head>
-	<body>
-		<div id="todoListApp" class="container">
-			<!-- TodoApp 标题 -->
-			<div class="row">
-				<div class="col-md-12">
-					<h1 class="text-center text-primary">{{ appName }}</h1>
-					<p class="text-center text-muted">{{ appDescription }}</p>
-				</div>
-			</div>
-			<!-- Todo 输入框，绑定 enter 按键 -->
-			<div class="row row-margin-top clearfix">
-				<div class="col-md-8 col-md-offset-2">
-					<div class="form-group">
-						<input type="text" class="form-control" 
-							v-model="newTodoItem" 
-							v-on:keyup.enter="addNewTodo" 
-							placeholder="Add a todo">
-						<p class="text-center text-info">{{ inputTip }}</p>
-					</div>
-				</div>
-			</div>
-			<!-- Todo 列表，绑定了两个事件 -->
-			<div class="row row-margin-top">
-				<div class="col-md-12">
-					<div class="list-group">
-						<div class="lead text-center" v-if="todos.length==0">{{ noTodosTip }}</div>
-						<div class="list-group-item clearfix"
-							v-else
-							v-for="(todo, index) in todos">
-					        <span v-if="todo.isDone" class="item-done">{{ index+1 }}. {{ todo.title }}</span>
-					        <span v-else>{{ index+1 }}. {{ todo.title }}</span>
+    <head>
+        <meta charset="utf-8" />
+        <title>TodoList - VUESampleApp by mrhuo.com</title>
+        <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <style type="text/css">
+            body { padding-top: 30px; }
+            .row-margin-top { margin-top: 20px; }
+            .btn-done, .btn-remove { padding-top: 2px; padding-bottom: 2px; }
+            .item-done { text-decoration: line-through; }
+        </style>
+    </head>
+    <body>
+        <div id="todoListApp" class="container">
+            <!-- TodoApp 标题 -->
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="text-center text-primary">{{ appName }}</h1>
+                    <p class="text-center text-muted">{{ appDescription }}</p>
+                </div>
+            </div>
+            <!-- Todo 输入框，绑定 enter 按键 -->
+            <div class="row row-margin-top clearfix">
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="form-group">
+                        <input type="text" class="form-control" v-model="newTodoItem" v-on:keyup.enter="addNewTodo" placeholder="Add a todo">
+                        <p class="text-center text-info">{{ inputTip }}</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Todo 列表，绑定了两个事件 -->
+            <div class="row row-margin-top">
+                <div class="col-md-12">
+                    <div class="list-group">
+                        <div class="lead text-center" v-if="todos.length==0">{{ noTodosTip }}</div>
+                        <div class="list-group-item clearfix" v-else v-for="(todo, index) in todos">
+                            <span v-if="todo.isDone" class="item-done">{{ index+1 }}. {{ todo.title }}</span>
+                            <span v-else>{{ index+1 }}. {{ todo.title }}</span>
 
-					        <span class="pull-right">
+                            <span class="pull-right">
 								<button class="btn-done btn btn-sm btn-info" 
 									v-on:click="updateItem(todo)">{{ todo.isDone ? 'Undone': 'Done' }}</button>
 								<button class="btn-remove btn btn-sm btn-danger" v-on:click="removeTodoItem(index)">Remove</button>
 							</span>
-					    </div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<script type="text/javascript">
-			var myStorage = {
-				//将一个对象序列化为JSON字符串
-				toJson: function (data) { return JSON.stringify(data); },
-				//从一个JSON字符串反序列化成一个对象
-				fromJson: function (jsonString){ return JSON.parse(jsonString); },
-				//保存数据，使用lcoalStorage
-				save: function (data) {
-					localStorage.setItem("todos", this.toJson(data));
-				},
-				//从存储中获取数据
-				fetch: function(){
-					var json = localStorage.getItem("todos") || "[]";
-					return this.fromJson(json);
-				}
-			};
-			new Vue({
-				el:'#todoListApp',
-				//初始化界面上的一些字符串，和todo
-				data: {
-					appName: "Todo List",
-					appDescription: "The todo list app written by vue, by mrhuo.com;",
-					inputTip: "Input todo item, and press ENTER to save!",
-					noTodosTip: "No todos.",
-					newTodoItem: "",
-					//开始时从localStorage中获取数据
-					todos: myStorage.fetch()
-				},
-				//监听 todos 的变化，如果变化就存入 localStorage
-				watch: {
-					todos: function () {
-						myStorage.save(this.todos);
-					}
-				},
-				//一些方法
-				methods: {
-					addNewTodo: function  () {
-						this.todos.push({
-							title: this.newTodoItem,
-							isDone: false
-						});
-						this.newTodoItem = '';
-					},
-					updateItem: function (item){
-						item.isDone = !item.isDone;
-						myStorage.save(this.todos);
-					},
-					removeTodoItem: function (index) {
-						this.todos.splice(index, 1);
-					}
-				}
-			});
-		</script>
-	</body>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var myStorage = {
+                //将一个对象序列化为JSON字符串
+                toJson: function(data) {
+                    return JSON.stringify(data);
+                },
+                //从一个JSON字符串反序列化成一个对象
+                fromJson: function(jsonString) {
+                    return JSON.parse(jsonString);
+                },
+                //保存数据，使用lcoalStorage
+                save: function(data) {
+                    localStorage.setItem("todos", this.toJson(data));
+                },
+                //从存储中获取数据
+                fetch: function() {
+                    var json = localStorage.getItem("todos") || "[]";
+                    return this.fromJson(json);
+                }
+            };
+            new Vue({
+                el: '#todoListApp',
+                //初始化界面上的一些字符串，和todo
+                data: {
+                    appName: "Todo List",
+                    appDescription: "The todo list app written by vue, by mrhuo.com;",
+                    inputTip: "Input todo item, and press ENTER to save!",
+                    noTodosTip: "No todos.",
+                    newTodoItem: "",
+                    //开始时从localStorage中获取数据
+                    todos: myStorage.fetch()
+                },
+                //监听 todos 的变化，如果变化就存入 localStorage
+                watch: {
+                    todos: function() {
+                        myStorage.save(this.todos);
+                    }
+                },
+                //一些方法
+                methods: {
+                    addNewTodo: function() {
+                        this.todos.push({
+                            title: this.newTodoItem,
+                            isDone: false
+                        });
+                        this.newTodoItem = '';
+                    },
+                    updateItem: function(item) {
+                        item.isDone = !item.isDone;
+                        myStorage.save(this.todos);
+                    },
+                    removeTodoItem: function(index) {
+                        this.todos.splice(index, 1);
+                    }
+                }
+            });
+        </script>
+    </body>
 </html>
